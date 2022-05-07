@@ -16,6 +16,7 @@
 #include <communications.h>
 #include <arm_math.h>
 
+enum State{LISTEN, GO, LEFT, RIGHT, BACK};
 
 static void serial_start(void)
 {
@@ -59,9 +60,24 @@ int main(void) {
     //inits the motors
     motors_init();
 
+    enum State current_state = LISTEN;
+
     /* Infinite loop. */
     while (1) {
-
+    	switch(current_state) {
+    		case LISTEN:
+    			break;
+    		case GO:
+    			break;
+    		case LEFT:
+    		    break;
+    		case RIGHT:
+    		    break;
+    		case BACK:
+    		    break;
+    		default:
+    			break;
+    	}
     }
 }
 
