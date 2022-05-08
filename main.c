@@ -10,13 +10,14 @@
 #include <chprintf.h>
 #include <motors.h>
 #include <audio/microphone.h>
+#include <classifier.h>
 
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
 #include <arm_math.h>
 
-enum State{LISTEN, GO, LEFT, RIGHT, BACK};
+
 
 static void serial_start(void)
 {
@@ -46,39 +47,46 @@ static void timer12_start(void){
     gptStartContinuous(&GPTD12, 0xFFFF);
 }
 
-int main(void) {
+
+
+int main(void)
+{
+
     halInit();
     chSysInit();
     mpu_init();
 
-    //starts the serial communication
     serial_start();
-    //starts the USB communication
     usb_start();
-    //starts timer 12
     timer12_start();
-    //inits the motors
     motors_init();
+    classifier_init();
+    mic_start(&processAudioData);
 
-    enum State current_state = LISTEN;
+    State current_state = LISTEN;
 
-    /* Infinite loop. */
     while (1) {
     	switch(current_state) {
-    		case LISTEN:
-    			break;
-    		case GO:
-    			break;
-    		case LEFT:
-    		    break;
-    		case RIGHT:
-    		    break;
-    		case BACK:
-    		    break;
-    		default:
-    			break;
-    	}
-    }
+			case LISTEN:
+				listen();
+				float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
+				classifier_predict(samples_vect_out);
+				chThdSleepMilliseconds(1000);
+				break;
+
+			case GO:
+				break;
+			case LEFT:
+				break;
+			case RIGHT:
+				break;
+			case BACK:
+				break;
+			default:
+				break;
+		}
+
+	}
 }
 
 #define STACK_CHK_GUARD 0xe2dee396
