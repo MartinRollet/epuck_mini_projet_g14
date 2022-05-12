@@ -10,6 +10,7 @@
 #include <chprintf.h>
 #include <motors.h>
 #include <audio/microphone.h>
+#include <move.h>
 #include <classifier.h>
 
 #include <audio_processing.h>
@@ -17,7 +18,7 @@
 #include <communications.h>
 #include <arm_math.h>
 
-
+enum State{LISTEN, GO, LEFT, RIGHT, BACK, MOVING};
 
 static void serial_start(void)
 {
@@ -60,33 +61,43 @@ int main(void)
     usb_start();
     timer12_start();
     motors_init();
+    move_thd_start();
     classifier_init();
     mic_start(&processAudioData);
 
-    State current_state = LISTEN;
+    enum State current_state = BACK;
 
+    /* Infinite loop. */
     while (1) {
     	switch(current_state) {
-			case LISTEN:
-				listen();
-				float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
-				classifier_predict(samples_vect_out);
-				chThdSleepMilliseconds(1000);
-				break;
-
-			case GO:
-				break;
-			case LEFT:
-				break;
-			case RIGHT:
-				break;
-			case BACK:
-				break;
-			default:
-				break;
-		}
-
-	}
+    		case LISTEN:
+    			continue;
+    		case GO:
+    			advance_distance(5,20);
+    			current_state = MOVING;
+    			continue;
+    		case LEFT:
+    			rotate_quarter_left(5);
+				current_state = MOVING;
+    			continue;
+    		case RIGHT:
+    			rotate_quarter_right(5);
+				current_state = MOVING;
+				continue;
+    		case BACK:
+    			rotate_half(5);
+    			current_state = MOVING;
+    			continue;
+    		case MOVING:
+    			if(!is_moving()) {
+    				current_state = LISTEN;
+    			}
+    			continue;
+    		default:
+    			continue;
+    	}
+    	chThdSleepMilliseconds(100);
+    }
 }
 
 #define STACK_CHK_GUARD 0xe2dee396
