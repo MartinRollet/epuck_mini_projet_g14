@@ -15,6 +15,7 @@ CSRC += ./main.c \
 		./fft.c \
 		./classifier.c \
 		./move.c \
+		./distance.c \
 
 #Header folders to include
 INCDIR += 

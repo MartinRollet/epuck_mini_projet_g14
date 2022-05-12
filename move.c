@@ -9,7 +9,7 @@
 #define PI				3.1416
 
 static bool move_active = false;
-static bool stop_request = false;
+static bool stop_requested = false;
 static uint16_t move_goal = 0;
 
 // --- INTERNAL FUNCTIONS ---
@@ -88,6 +88,10 @@ bool is_moving(void) {
 	return move_active;
 }
 
+void stop_request(void) {
+	stop_requested = true;
+}
+
 // --- MOVEMENTS THREAD ---
 
 static THD_WORKING_AREA(waMoveThd, 256);
@@ -97,10 +101,11 @@ static THD_FUNCTION(MoveThd, arg) {
 	while(1) {
 		//palTogglePad(GPIOB,GPIOB_LED_BODY);
 			if(move_active){
-				if(stop_request) {
+				if(stop_requested) {
 					left_motor_set_speed(0);
 					right_motor_set_speed(0);
 					move_active = false;
+					stop_requested = false;
 				}
 				else {
 					bool left_reached = abs(left_motor_get_pos()) > abs(move_goal);

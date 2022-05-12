@@ -12,11 +12,16 @@
 #include <audio/microphone.h>
 #include <move.h>
 #include <classifier.h>
+#include <distance.h>
 
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
 #include <arm_math.h>
+
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 typedef enum {LISTEN, GO, LEFT, RIGHT, BACK, MOVING} State;
 
@@ -52,7 +57,6 @@ static void timer12_start(void){
 
 int main(void)
 {
-
     halInit();
     chSysInit();
     mpu_init();
@@ -62,10 +66,15 @@ int main(void)
     serial_start();
     usb_start();
     timer12_start();
+
+	proximity_start();
+	//calibrate_ir();
+
     motors_init();
     move_thd_start();
     classifier_init();
     mic_start(&processAudioData);
+    IrSens_start();
 
     State current_state = LISTEN;
     Command current_command = CMD_NOISE;
@@ -113,6 +122,9 @@ int main(void)
     			current_state = MOVING;
     			continue;
     		case MOVING:
+    			if(object_detected()) {
+    				stop_request();
+    			}
     			if(!is_moving()) {
     				current_state = LISTEN;
     			}
