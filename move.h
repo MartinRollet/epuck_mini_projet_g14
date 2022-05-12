@@ -10,5 +10,6 @@ void rotate_quarter_left(uint16_t speed);
 void rotate_half(uint16_t speed);
 bool is_moving(void);
 void move_thd_start(void);
+void stop_request(void);
 
 #endif
