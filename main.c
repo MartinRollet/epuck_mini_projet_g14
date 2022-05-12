@@ -10,13 +10,14 @@
 #include <chprintf.h>
 #include <motors.h>
 #include <audio/microphone.h>
+#include <move.h>
 
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
 #include <arm_math.h>
 
-enum State{LISTEN, GO, LEFT, RIGHT, BACK};
+enum State{LISTEN, GO, LEFT, RIGHT, BACK, MOVING};
 
 static void serial_start(void)
 {
@@ -59,25 +60,40 @@ int main(void) {
     timer12_start();
     //inits the motors
     motors_init();
+    move_thd_start();
 
-    enum State current_state = LISTEN;
+    enum State current_state = BACK;
 
     /* Infinite loop. */
     while (1) {
     	switch(current_state) {
     		case LISTEN:
-    			break;
+    			continue;
     		case GO:
-    			break;
+    			advance_distance(5,20);
+    			current_state = MOVING;
+    			continue;
     		case LEFT:
-    		    break;
+    			rotate_quarter_left(5);
+				current_state = MOVING;
+    			continue;
     		case RIGHT:
-    		    break;
+    			rotate_quarter_right(5);
+				current_state = MOVING;
+				continue;
     		case BACK:
-    		    break;
+    			rotate_half(5);
+    			current_state = MOVING;
+    			continue;
+    		case MOVING:
+    			if(!is_moving()) {
+    				current_state = LISTEN;
+    			}
+    			continue;
     		default:
-    			break;
+    			continue;
     	}
+    	chThdSleepMilliseconds(100);
     }
 }
 
