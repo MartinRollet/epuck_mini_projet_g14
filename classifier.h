@@ -1,7 +1,7 @@
 #ifndef CLASSIFIER_H
 #define CLASSIFIER_H
 
-typedef enum {N, G, L, R, B} Command;
+typedef enum {CMD_NOISE, CMD_GO, CMD_RIGHT, CMD_LEFT, CMD_BACK} Command;
 
 
 void classifier_init(void);
