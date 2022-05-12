@@ -9,7 +9,7 @@
 #include "weights.h"
 
 
-const char label_name[][10] = { "Go", "Right", "Left", "Back"};
+const char label_name[][10] = {"Noise", "Go", "Right", "Left", "Back"};
 
 static int8_t input[SAMPLE_SIZE] = {0,};
 static nnom_model_t* model;
@@ -30,7 +30,7 @@ void quantize_data(float* din, int8_t* dout, uint16_t size){
 }
 
 
-void classifier_predict(float *data){
+void classifier_predict(float *data, Command *cmd){
 	uint32_t predic_label = 0;
 	float prob = 0;
 
@@ -42,6 +42,8 @@ void classifier_predict(float *data){
 	chprintf((BaseSequentialStream *)&SD3,"%s \r\n", (char*)&label_name[predic_label]);
     chprintf((BaseSequentialStream *)&SD3,"Predicted label: %d\r\n", predic_label);
     chprintf((BaseSequentialStream *)&SD3,"Probability: %.2f \r\n", (prob));
+
+    *cmd = predic_label;
     return;
 }
 

@@ -1,11 +1,11 @@
 #ifndef CLASSIFIER_H
 #define CLASSIFIER_H
 
+typedef enum {N, G, L, R, B} Command;
 
-typedef enum {LISTEN, GO, LEFT, RIGHT, BACK} State;
 
 void classifier_init(void);
 
-void classifier_predict(float *data);
+void classifier_predict(float *data, Command *cmd);
 
 #endif /* CLASSIFIER_H */

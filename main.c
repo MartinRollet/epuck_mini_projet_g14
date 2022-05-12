@@ -17,7 +17,7 @@
 #include <communications.h>
 #include <arm_math.h>
 
-
+typedef enum {LISTEN, GO, LEFT, RIGHT, BACK} State;
 
 static void serial_start(void)
 {
@@ -64,13 +64,14 @@ int main(void)
     mic_start(&processAudioData);
 
     State current_state = LISTEN;
+    Command current_command = N;
 
     while (1) {
     	switch(current_state) {
 			case LISTEN:
 				listen();
 				float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
-				classifier_predict(samples_vect_out);
+				classifier_predict(samples_vect_out, &current_command);
 				chThdSleepMilliseconds(1000);
 				break;
 
