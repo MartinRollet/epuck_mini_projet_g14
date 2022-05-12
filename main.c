@@ -65,8 +65,8 @@ int main(void)
     classifier_init();
     mic_start(&processAudioData);
 
-    State current_state = BACK;
-    Command current_command = N;
+    State current_state = LISTEN;
+    Command current_command = CMD_NOISE;
     /* Infinite loop. */
     while (1) {
     	switch(current_state) {
@@ -74,6 +74,24 @@ int main(void)
                 listen();
                 float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
                 classifier_predict(samples_vect_out, &current_command);
+                switch(current_command) {
+                	case CMD_NOISE:
+                		continue;
+                	case CMD_GO:
+                		current_state = GO;
+                		continue;
+                	case CMD_RIGHT:
+                		current_state = RIGHT;
+						continue;
+                	case CMD_LEFT:
+                		current_state = LEFT;
+						continue;
+                	case CMD_BACK:
+                		current_state = BACK;
+						continue;
+                	default:
+                		continue;
+                }
     			continue;
     		case GO:
     			advance_distance(5,20);

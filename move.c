@@ -95,7 +95,7 @@ static THD_FUNCTION(MoveThd, arg) {
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 	while(1) {
-		palTogglePad(GPIOB,GPIOB_LED_BODY);
+		//palTogglePad(GPIOB,GPIOB_LED_BODY);
 			if(move_active){
 				if(stop_request) {
 					left_motor_set_speed(0);
