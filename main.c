@@ -18,7 +18,7 @@
 #include <communications.h>
 #include <arm_math.h>
 
-typedef enum {LISTEN, GO, LEFT, RIGHT, BACK} State;
+typedef enum {LISTEN, GO, LEFT, RIGHT, BACK, MOVING} State;
 
 static void serial_start(void)
 {
@@ -65,8 +65,8 @@ int main(void)
     classifier_init();
     mic_start(&processAudioData);
 
-    enum State current_state = BACK;
-
+    State current_state = BACK;
+    Command current_command = N;
     /* Infinite loop. */
     while (1) {
     	switch(current_state) {
