@@ -3,7 +3,7 @@
 #Simply adapt the lines below to be able to compile
 
 # Define project name here
-PROJECT = Proj
+PROJECT = epuck_mini_projet_g14
 
 #Define path to the e-puck2_main-processor folder
 GLOBAL_PATH = ../../lib/e-puck2_main-processor
@@ -14,6 +14,7 @@ CSRC += ./main.c \
 		./communications.c \
 		./fft.c \
 		./classifier.c \
+		./move.c \
 
 #Header folders to include
 INCDIR += 
