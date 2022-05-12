@@ -92,6 +92,10 @@ void stop_request(void) {
 	stop_requested = true;
 }
 
+void run_request(void){
+	stop_requested = false;
+}
+
 // --- MOVEMENTS THREAD ---
 
 static THD_WORKING_AREA(waMoveThd, 256);

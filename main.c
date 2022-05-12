@@ -34,22 +34,18 @@ static void serial_start(void)
 	    0,
 	};
 
-	sdStart(&SD3, &ser_cfg); // UART3.
+	sdStart(&SD3, &ser_cfg);
 }
 
 static void timer12_start(void){
-    //General Purpose Timer configuration   
-    //timer 12 is a 16 bit timer so we can measure time
-    //to about 65ms with a 1Mhz counter
     static const GPTConfig gpt12cfg = {
-        1000000,        /* 1MHz timer clock in order to measure uS.*/
-        NULL,           /* Timer callback.*/
+        1000000,
+        NULL,
         0,
         0
     };
 
     gptStart(&GPTD12, &gpt12cfg);
-    //let the timer count to max value
     gptStartContinuous(&GPTD12, 0xFFFF);
 }
 
@@ -68,7 +64,7 @@ int main(void)
     timer12_start();
 
 	proximity_start();
-	//calibrate_ir();
+	calibrate_ir();
 
     motors_init();
     move_thd_start();
@@ -76,16 +72,20 @@ int main(void)
     mic_start(&processAudioData);
     IrSens_start();
 
+//    chThdSetPriority(NORMALPRIO);
     State current_state = LISTEN;
     Command current_command = CMD_NOISE;
     /* Infinite loop. */
     while (1) {
     	switch(current_state) {
     		case LISTEN:
+    			current_command = CMD_NOISE;
+    		    chThdSetPriority(NORMALPRIO+2);
                 listen();
                 float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
                 classifier_predict(samples_vect_out, &current_command);
-            	chprintf((BaseSequentialStream *)&SD3," %.2f \r\n", current_command);
+                chThdSetPriority(NORMALPRIO);
+
                 switch(current_command) {
                 	case CMD_NOISE:
                 		continue;
@@ -106,9 +106,9 @@ int main(void)
                 }
     			continue;
     		case GO:
-    			advance_distance(5,20);
-    			current_state = MOVING;
-    			continue;
+				advance_distance(5,20);
+				current_state = MOVING;
+				continue;
     		case LEFT:
     			rotate_quarter_left(5);
 				current_state = MOVING;
@@ -122,8 +122,12 @@ int main(void)
     			current_state = MOVING;
     			continue;
     		case MOVING:
-    			if(object_detected()) {
-    				stop_request();
+    			if(current_command == CMD_GO){
+    				if(object_detected()){
+    					stop_request();
+    				}
+    			}else{
+    				run_request();
     			}
     			if(!is_moving()) {
     				current_state = LISTEN;
