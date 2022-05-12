@@ -19,9 +19,9 @@
 #include <communications.h>
 #include <arm_math.h>
 
-//messagebus_t bus;
-//MUTEX_DECL(bus_lock);
-//CONDVAR_DECL(bus_condvar);
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 typedef enum {LISTEN, GO, LEFT, RIGHT, BACK, MOVING} State;
 
@@ -57,8 +57,6 @@ static void timer12_start(void){
 
 int main(void)
 {
-	calibrate_ir();
-	proximity_start();
     halInit();
     chSysInit();
     mpu_init();
@@ -66,6 +64,10 @@ int main(void)
     serial_start();
     usb_start();
     timer12_start();
+
+	proximity_start();
+	//calibrate_ir();
+
     motors_init();
     move_thd_start();
     classifier_init();
