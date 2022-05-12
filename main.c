@@ -57,6 +57,8 @@ int main(void)
     chSysInit();
     mpu_init();
 
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
+
     serial_start();
     usb_start();
     timer12_start();
@@ -74,6 +76,7 @@ int main(void)
                 listen();
                 float* samples_vect_out = get_audio_buffer_ptr(FRONT_OUTPUT);
                 classifier_predict(samples_vect_out, &current_command);
+            	chprintf((BaseSequentialStream *)&SD3," %.2f \r\n", current_command);
                 switch(current_command) {
                 	case CMD_NOISE:
                 		continue;
