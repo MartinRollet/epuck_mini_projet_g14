@@ -11,6 +11,8 @@
 static int8_t input[SAMPLE_SIZE] = {0,}; //Quantized Input buffer for the model
 static nnom_model_t* model;				 //model object variable
 
+// --- INTERNAL FUNCTIONS ---
+
 /*
  * @function	quantize_data
  * @abstract	quantizes a float buffer in int8_t format
@@ -25,6 +27,8 @@ void quantize_data(float* din, int8_t* dout, uint16_t size){
 		dout[i] = (int8_t)(127 * (round(din[i]* 128)/128));
 	}
 }
+
+// --- PUBLIC FUNCTIONS ---
 
 void classifier_init(void){
 	model = nnom_model_create();

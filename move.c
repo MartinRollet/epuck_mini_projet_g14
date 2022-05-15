@@ -17,19 +17,36 @@ static uint16_t move_goal = 0;
 
 // --- INTERNAL FUNCTIONS ---
 
-//Reset both step motors position counter
+/*!
+ * @function	reset_motors_pos
+ * @abstract	Reset position of step motors.
+ * @discussion	Reset the position counter of both step motors to enable
+ * 				correct position control.
+*/
 void reset_motors_pos(void) {
 	left_motor_set_pos(0);
 	right_motor_set_pos(0);
 	return;
 }
 
-//Converts speed in [cm/s] to [motorsteps/s]
+/*!
+ * @function	speed_steps
+ * @abstract	Convert speed units.
+ * @discussion	Convert speed from [cm/s] to [motorsteps/s].
+ * @param		speed	Speed in [cm/s]
+ * @result		Converted speed in [motorsteps/s].
+*/
 int16_t speed_steps(int16_t speed) {
 	return STEPS_PER_TURN*speed/WHEEL_PERIMETER;
 }
 
-//Converts distance in [cm] to [motorsteps]
+/*!
+ * @function	dist_steps
+ * @abstract	Convert distance units.
+ * @discussion	Convert distance from [cm] to [motorsteps].
+ * @param		distance	Distance in [cm]
+ * @result		Converted distance in [motorsteps].
+*/
 uint16_t dist_steps(uint16_t dist) {
 	return STEPS_PER_TURN*dist/WHEEL_PERIMETER;
 }

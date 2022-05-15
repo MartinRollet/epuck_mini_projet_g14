@@ -25,6 +25,8 @@ static uint16_t nb_samples = 0; // number of saved samples
 static bool reader = false;		//control variable for the start of sample saving period
 static bool ctrl_trig = false;	//control variable for the control of listening period
 
+// --- INTERNAL FUNCTIONS ---
+
 /*
  * @function	energy
  * @abstract	calculates the average energy of the signal
@@ -64,6 +66,8 @@ void normalize(float* vect, int16_t size){
 		vect[i] = vect[i]/max;
 	}
 }
+
+// --- PUBLIC FUNCTIONS ---
 
 void processAudioData(int16_t *data, uint16_t num_samples){
 	if(ctrl_trig){
