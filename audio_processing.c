@@ -16,14 +16,16 @@ static BSEMAPHORE_DECL(Listen_sem, TRUE); //Listen_sem Semaphore
 #define LIMIT_MAX		150	//we don't analyze if the is signal's maximum value is too low
 #define LIMIT_ENERGY	600	//we don't analyze if the is signal's normalized energy is too low
 
-static float micFront_input[SAMPLE_SIZE*2] = {0,}; //Input buffer containing raw samples
-static float micFront_out[SAMPLE_SIZE] = {0,}; //Output buffer contatinng final processed samples
+static float micFront_input[SAMPLE_SIZE*2] = {0,};	//Input buffer containing raw samples
+static float micFront_out[SAMPLE_SIZE] = {0,};		//Output buffer contatinng final processed samples
 
-static float max = 0; //signals maximal value
-static float sampled = 0; // intermediate variable
-static uint16_t nb_samples = 0; // number of total samples
-static bool reader = false;	//control variable for the start of sample saving
-static bool ctrl_trig = false;//control variable for the start of listening
+static float max = 0; 			//signals maximal value
+static float sampled = 0;		// intermediate variable
+static uint16_t nb_samples = 0;	// number of total samples
+static bool reader = false;		//control variable for the start of sample saving
+static bool ctrl_trig = false;	//control variable for the start of listening
+
+// --- INTERNAL FUNCTIONS ---
 
 /*
  * @function	energy
@@ -64,6 +66,8 @@ void normalize(float* vect, int16_t size){
 		vect[i] = vect[i]/max;
 	}
 }
+
+// --- PUBLIC FUNCTIONS ---
 
 void processAudioData(int16_t *data, uint16_t num_samples){
 	if(ctrl_trig){
