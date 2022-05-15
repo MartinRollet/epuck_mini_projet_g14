@@ -33,7 +33,6 @@ static THD_FUNCTION(IrSens, arg) {
 		} else {
 			detected = false;
 		}
-
 		chThdSleepMilliseconds(100);
 	}
 }

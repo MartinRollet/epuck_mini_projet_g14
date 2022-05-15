@@ -103,7 +103,6 @@ static THD_FUNCTION(MoveThd, arg) {
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 	while(1) {
-		//palTogglePad(GPIOB,GPIOB_LED_BODY);
 			if(move_active){
 				if(stop_requested) {
 					left_motor_set_speed(0);
@@ -125,8 +124,6 @@ static THD_FUNCTION(MoveThd, arg) {
 					}
 				}
 			}
-			//palClearPad(GPIOB,GPIOB_LED_BODY);
-
 		chThdSleepMilliseconds(100);
 	}
 }

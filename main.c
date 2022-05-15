@@ -23,7 +23,7 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
-typedef enum {LISTEN, GO, LEFT, RIGHT, BACK, MOVING} State;
+typedef enum {LISTEN, GO, LEFT, RIGHT, BACK, MOVING} STATE;
 
 static void serial_start(void)
 {
@@ -37,17 +37,18 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg);
 }
 
-static void timer12_start(void){
-    static const GPTConfig gpt12cfg = {
-        1000000,
-        NULL,
-        0,
-        0
-    };
-
-    gptStart(&GPTD12, &gpt12cfg);
-    gptStartContinuous(&GPTD12, 0xFFFF);
-}
+//
+//static void timer12_start(void){
+//    static const GPTConfig gpt12cfg = {
+//        1000000,
+//        NULL,
+//        0,
+//        0
+//    };
+//
+//    gptStart(&GPTD12, &gpt12cfg);
+//    gptStartContinuous(&GPTD12, 0xFFFF);
+//}
 
 
 
@@ -61,7 +62,7 @@ int main(void)
 
     serial_start();
     usb_start();
-    timer12_start();
+//    timer12_start();
 
 	proximity_start();
 	calibrate_ir();
@@ -72,9 +73,8 @@ int main(void)
     mic_start(&processAudioData);
     IrSens_start();
 
-//    chThdSetPriority(NORMALPRIO);
-    State current_state = LISTEN;
-    Command current_command = CMD_NOISE;
+    STATE current_state = LISTEN;
+    COMMAND current_command = CMD_NOISE;
     /* Infinite loop. */
     while (1) {
     	switch(current_state) {
