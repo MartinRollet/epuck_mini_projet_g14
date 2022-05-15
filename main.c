@@ -19,6 +19,13 @@
 #include <communications.h>
 #include <arm_math.h>
 
+#define MOVE_SPEED		5	//[cm/s]
+#define GO_DISTANCE		20	//[cm]
+#define QUARTER_ANGLE	90	//[deg]
+#define	HALF_ANGLE		180	//[deg]
+
+#define MAIN_SLEEP_TIME	100	//[ms]
+
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -103,19 +110,19 @@ int main(void)
                 }
     			continue;
     		case GO:
-    			advance_distance(5,20);
+    			advance(MOVE_SPEED,GO_DISTANCE);
     			current_state = MOVING;
     			continue;
     		case LEFT:
-    			rotate_quarter_left(5);
+    			rotate(MOVE_SPEED,-QUARTER_ANGLE);
 				current_state = MOVING;
     			continue;
     		case RIGHT:
-    			rotate_quarter_right(5);
+    			rotate(MOVE_SPEED,QUARTER_ANGLE);
 				current_state = MOVING;
 				continue;
     		case BACK:
-    			rotate_half(5);
+    			rotate(MOVE_SPEED,HALF_ANGLE);
     			current_state = MOVING;
     			continue;
     		case MOVING:
@@ -129,7 +136,7 @@ int main(void)
     		default:
     			continue;
     	}
-    	chThdSleepMilliseconds(100);
+    	chThdSleepMilliseconds(MAIN_SLEEP_TIME);
     }
 }
 
