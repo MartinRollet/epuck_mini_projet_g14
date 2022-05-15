@@ -10,23 +10,28 @@
 #include <fft.h>
 #include <arm_math.h>
 
-//semaphore
-static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
+static BSEMAPHORE_DECL(Listen_sem, TRUE); //Listen_sem Semaphore
 
 #define LIMIT_NOISE		20	//we don't sample noise
-#define LIMIT_MAX		150	//we don't analyze if the is signal too weak
+#define LIMIT_MAX		150	//we don't analyze if the is signal's maximum value is too low
 #define LIMIT_ENERGY	600	//we don't analyze if the is signal's normalized energy is too low
 
-static float micFront_input[SAMPLE_SIZE*2] = {0,};
-static float micFront_out[SAMPLE_SIZE] = {0,};
+static float micFront_input[SAMPLE_SIZE*2] = {0,}; //Input buffer containing raw samples
+static float micFront_out[SAMPLE_SIZE] = {0,}; //Output buffer contatinng final processed samples
 
-static float max = 0;
-static float sampled = 0;
-static uint16_t nb_samples = 0;
-static bool reader = false;
-static bool ctrl_trig = 0;
+static float max = 0; //signals maximal value
+static float sampled = 0; // intermediate variable
+static uint16_t nb_samples = 0; // number of total samples
+static bool reader = false;	//control variable for the start of sample saving
+static bool ctrl_trig = false;//control variable for the start of listening
 
-
+/*
+ * @function	energy
+ * @abstract	calculates the average energy of the signal
+ * @param		*vect		Buffer for which the energy has to be calculated
+ * @param		size		size of the buffer
+ * @reslut		returns true if the average energy is > LIMIT_ENERGY, otherwise false
+ */
 bool energy(float* vect, int16_t size){
 	float sum_total = 0;
 	for(uint16_t i = 0; i < size; i++){
@@ -36,27 +41,29 @@ bool energy(float* vect, int16_t size){
 			sum_total += -vect[i];
 		}
 	}
-
 	if(sum_total > LIMIT_ENERGY){
 		return false;
 	}
 	return true;
 }
 
-
-void standardize(float* vect, int16_t size){
+/*
+ * @function	normalize
+ * @abstract	normalizes the given vector by its maximum value
+ * @param		*vect		buffer that has to be normalized
+ * @param		size		size of the buffer
+ */
+void normalize(float* vect, int16_t size){
 	float max = 0;
 	for(uint16_t i = 0; i < size; i++){
 		if((vect[i]) > max){
 			max = (vect[i]) ;
 		}
 	}
-
 	for(uint16_t i = 0; i < size; i++){
 		vect[i] = vect[i]/max;
 	}
 }
-
 
 void processAudioData(int16_t *data, uint16_t num_samples){
 	if(ctrl_trig){
@@ -80,7 +87,6 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 					}
 					micFront_input[nb_samples] = sampled;
 					nb_samples++;
-
 			}else if(sampled > LIMIT_NOISE){
 				reader = true;
 			}
@@ -88,28 +94,25 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		if(nb_samples >= (SAMPLE_SIZE*2)){
 			nb_samples = 0;
-			standardize(micFront_input, SAMPLE_SIZE*2);
+			normalize(micFront_input, SAMPLE_SIZE*2);
 			if(!energy(micFront_input, SAMPLE_SIZE*2)){
 				ctrl_trig = false;
 				palClearPad(GPIOB, GPIOB_LED_BODY);
 				doFFT_optimized(SAMPLE_SIZE, micFront_input);
 				arm_cmplx_mag_f32(micFront_input, micFront_out, SAMPLE_SIZE);
-				standardize(micFront_out, SAMPLE_SIZE);
-				chBSemSignal(&sendToComputer_sem);
+				normalize(micFront_out, SAMPLE_SIZE);
+				chBSemSignal(&Listen_sem);
 			}
 		}
 	}
 }
 
-
 void listen(void){
-	ctrl_trig = 1;
-	chBSemWait(&sendToComputer_sem);
+	ctrl_trig = true;
+	chBSemWait(&Listen_sem);
 }
 
-
 float* get_audio_buffer_ptr(BUFFER_NAME_t name){
-
 	if (name == FRONT_INPUT){
 		return micFront_input;
 		}

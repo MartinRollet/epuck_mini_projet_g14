@@ -39,6 +39,7 @@ bool is_moving(void);
  * 				motors will stop at next thread call.
 */
 void stop_request(void);
+void run_request(void);
 
 /*!
  * @function	move_thd_start

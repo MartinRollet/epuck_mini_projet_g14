@@ -12,8 +12,8 @@
 #include <chprintf.h>
 
 
-#define USED_IR_SENSOR 1
-#define PROXIMITY_VALUE	2000
+#define USED_IR_SENSOR 0
+#define PROXIMITY_VALUE	40
 
 static bool detected = false;
 
@@ -28,14 +28,12 @@ static THD_FUNCTION(IrSens, arg) {
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 	while(1) {
-	    chprintf((BaseSequentialStream *)&SD3,"Capteur Dist: %D\r\n", get_calibrated_prox(0));
-//		if(get_calibrated_prox(1) > PROXIMITY_VALUE){
-//			detected = true;
-//		} else {
-//			detected = false;
-//		}
-
-		chThdSleepMilliseconds(300);
+		if(get_calibrated_prox(USED_IR_SENSOR) > PROXIMITY_VALUE){
+			detected = true;
+		} else {
+			detected = false;
+		}
+		chThdSleepMilliseconds(100);
 	}
 }
 
