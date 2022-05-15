@@ -44,36 +44,17 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg);
 }
 
-//
-//static void timer12_start(void){
-//    static const GPTConfig gpt12cfg = {
-//        1000000,
-//        NULL,
-//        0,
-//        0
-//    };
-//
-//    gptStart(&GPTD12, &gpt12cfg);
-//    gptStartContinuous(&GPTD12, 0xFFFF);
-//}
-
-
-
 int main(void)
 {
+	//Initializations
     halInit();
     chSysInit();
     mpu_init();
-
     messagebus_init(&bus, &bus_lock, &bus_condvar);
-
     serial_start();
     usb_start();
-//    timer12_start();
-
 	proximity_start();
 	calibrate_ir();
-
     motors_init();
     move_thd_start();
     classifier_init();
@@ -86,6 +67,7 @@ int main(void)
     while (1) {
     	switch(current_state) {
     		case LISTEN:
+    			//Detection of words
     			current_command = CMD_NOISE;
     		    chThdSetPriority(NORMALPRIO+2);
                 listen();
@@ -112,16 +94,21 @@ int main(void)
                 		continue;
                 }
     			continue;
+    		//Reactions to detected words
     		case GO:
+    			if(object_detected()) {
+    				current_state = LISTEN;
+    				continue;
+    			}
     			advance(MOVE_SPEED,GO_DISTANCE);
     			current_state = MOVING;
     			continue;
     		case LEFT:
-    			rotate(MOVE_SPEED,-QUARTER_ANGLE);
+    			rotate(-MOVE_SPEED,QUARTER_ANGLE);
 				current_state = MOVING;
     			continue;
     		case RIGHT:
-    			rotate(MOVE_SPEED,QUARTER_ANGLE);
+    			rotate(-MOVE_SPEED,QUARTER_ANGLE);
 				current_state = MOVING;
 				continue;
     		case BACK:
@@ -129,14 +116,11 @@ int main(void)
     			current_state = MOVING;
     			continue;
     		case MOVING:
-    			if(current_command == CMD_GO){
-    				if(object_detected()){
-    					stop_request();
-    				}
-    			}else{
-    				clear_stop_request();
-    			}
+    			if(current_command == CMD_GO && object_detected()){
+    				stop_request();
+				}
     			if(!is_moving()) {
+    				clear_stop_request();
     				current_state = LISTEN;
     			}
     			continue;

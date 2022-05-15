@@ -96,7 +96,6 @@ static THD_FUNCTION(MoveThd, arg) {
 				left_motor_set_speed(0);
 				right_motor_set_speed(0);
 				move_active = false;
-				stop_requested = false;
 			}
 			//Check if goal position is reached
 			else {
