@@ -69,30 +69,31 @@ static THD_FUNCTION(MoveThd, arg) {
 	chRegSetThreadName(__FUNCTION__);
 	(void)arg;
 	while(1) {
-		//palTogglePad(GPIOB,GPIOB_LED_BODY);
-			if(move_active){
-				if(stop_requested) {
+		if(move_active){
+			//Stop the motors if requested
+			if(stop_requested) {
+				left_motor_set_speed(0);
+				right_motor_set_speed(0);
+				move_active = false;
+				stop_requested = false;
+			}
+			//Check if goal position is reached
+			else {
+				bool left_reached = abs(left_motor_get_pos()) > abs(move_goal);
+				bool right_reached = abs(right_motor_get_pos()) > abs(move_goal);
+				//Stop motors if goal position reached
+				if(left_reached) {
 					left_motor_set_speed(0);
-					right_motor_set_speed(0);
-					move_active = false;
-					stop_requested = false;
 				}
-				else {
-					bool left_reached = abs(left_motor_get_pos()) > abs(move_goal);
-					bool right_reached = abs(right_motor_get_pos()) > abs(move_goal);
-					if(left_reached) {
-						left_motor_set_speed(0);
-					}
-					if(right_reached) {
-						right_motor_set_speed(0);
-					}
-					if(left_reached && right_reached) {
-						move_active = false;
-					}
+				if(right_reached) {
+					right_motor_set_speed(0);
+				}
+				//Update motor status
+				if(left_reached && right_reached) {
+					move_active = false;
 				}
 			}
-			//palClearPad(GPIOB,GPIOB_LED_BODY);
-
+		}
 		chThdSleepMilliseconds(MOVE_SLEEP_TIME);
 	}
 }
