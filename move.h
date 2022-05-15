@@ -50,7 +50,7 @@ void clear_stop_request(void);
 
 /*!
  * @function	move_thd_start
- * @abstract	Initialize thread fro movements.
+ * @abstract	Initialize thread for movements.
  * @discussion	Start the move_thd, which is called every
  * 				100 milliseconds and have normal priority.
 */
