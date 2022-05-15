@@ -134,7 +134,7 @@ int main(void)
     					stop_request();
     				}
     			}else{
-    				run_request();
+    				clear_stop_request();
     			}
     			if(!is_moving()) {
     				current_state = LISTEN;

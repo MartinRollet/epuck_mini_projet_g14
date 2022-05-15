@@ -39,7 +39,14 @@ bool is_moving(void);
  * 				motors will stop at next thread call.
 */
 void stop_request(void);
-void run_request(void);
+
+/*!
+ * @function	clear_stop_request
+ * @abstract	Clear the stop request.
+ * @discussion	Clear the stop request flag in this module,
+ * 				motors will not stop at next thread call.
+*/
+void clear_stop_request(void);
 
 /*!
  * @function	move_thd_start

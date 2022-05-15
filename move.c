@@ -62,7 +62,7 @@ void stop_request(void) {
 	stop_requested = true;
 }
 
-void run_request(void){
+void clear_stop_request(void){
 	stop_requested = false;
 }
 
