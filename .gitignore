@@ -3,6 +3,7 @@ build
 .project
 .cproject
 .settings
+.launch
 
 # Prerequisites
 *.d
