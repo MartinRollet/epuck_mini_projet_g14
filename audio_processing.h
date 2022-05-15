@@ -30,7 +30,6 @@ void processAudioData(int16_t *data, uint16_t num_samples);
  */
 void listen(void);
 
-
 /*
  * @function	get_audio_buffer_ptr
  * @abstract	Allows access to the central Input & Output buffers

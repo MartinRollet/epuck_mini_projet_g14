@@ -10,20 +10,20 @@
 #include <fft.h>
 #include <arm_math.h>
 
-static BSEMAPHORE_DECL(Listen_sem, TRUE); //Listen_sem Semaphore
+static BSEMAPHORE_DECL(Listen_sem, TRUE);	//Listen_sem Semaphore
 
-#define LIMIT_NOISE		20	//we don't sample noise
-#define LIMIT_MAX		150	//we don't analyze if the is signal's maximum value is too low
-#define LIMIT_ENERGY	600	//we don't analyze if the is signal's normalized energy is too low
+#define LIMIT_NOISE		20		//we don't sample noise
+#define LIMIT_MAX		150		//we don't analyze if the is signal's maximum value is too low
+#define LIMIT_ENERGY	600		//we don't analyze if the is signal's normalized energy is too low
 
-static float micFront_input[SAMPLE_SIZE*2] = {0,}; //Input buffer containing raw samples
-static float micFront_out[SAMPLE_SIZE] = {0,}; //Output buffer contatinng final processed samples
+static float micFront_input[SAMPLE_SIZE*2] = {0,};	//Input buffer containing raw samples
+static float micFront_out[SAMPLE_SIZE] = {0,}; 		//Output buffer contatinng final processed samples
 
-static float max = 0; //signals maximal value
-static float sampled = 0; // intermediate variable
-static uint16_t nb_samples = 0; // number of total samples
-static bool reader = false;	//control variable for the start of sample saving
-static bool ctrl_trig = false;//control variable for the start of listening
+static float max = 0;			//signals maximal value
+static float sampled = 0; 		//intermediate variable
+static uint16_t nb_samples = 0; // number of saved samples
+static bool reader = false;		//control variable for the start of sample saving period
+static bool ctrl_trig = false;	//control variable for the control of listening period
 
 /*
  * @function	energy
@@ -69,8 +69,8 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 	if(ctrl_trig){
 		palSetPad(GPIOB, GPIOB_LED_BODY);
 		for(uint16_t i = 0 ; i < num_samples ; i+=4){
-
 			if(nb_samples >= (SAMPLE_SIZE*2)){
+				// exit the loop if enough samples are saved & the max of amplitude > LIMIT_MAX
 				if(max > LIMIT_MAX){
 					reader = false;
 					max = 0;
@@ -79,7 +79,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 					nb_samples = 0;
 				}
 			}
-
+			// start recording if a sample > LIMIT_NOISE (static noise) is received
 			sampled = (float)data[i + MIC_FRONT];
 			if(reader){
 					if(sampled > max){
@@ -94,13 +94,17 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		if(nb_samples >= (SAMPLE_SIZE*2)){
 			nb_samples = 0;
+			// Samples are normalized
 			normalize(micFront_input, SAMPLE_SIZE*2);
+			// if the sample energy is above adequately high
 			if(!energy(micFront_input, SAMPLE_SIZE*2)){
 				ctrl_trig = false;
 				palClearPad(GPIOB, GPIOB_LED_BODY);
+				// FFT is calculated and normalized
 				doFFT_optimized(SAMPLE_SIZE, micFront_input);
 				arm_cmplx_mag_f32(micFront_input, micFront_out, SAMPLE_SIZE);
 				normalize(micFront_out, SAMPLE_SIZE);
+				// we signal the semaphore that the listening has ended
 				chBSemSignal(&Listen_sem);
 			}
 		}

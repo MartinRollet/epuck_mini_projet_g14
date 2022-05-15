@@ -9,7 +9,7 @@
 #include "weights.h"
 
 static int8_t input[SAMPLE_SIZE] = {0,}; //Quantized Input buffer for the model
-static nnom_model_t* model;	//model object variable
+static nnom_model_t* model;				 //model object variable
 
 /*
  * @function	quantize_data
@@ -41,4 +41,3 @@ void classifier_predict(float *data, COMMAND *cmd){
     *cmd = predic_label;
     return;
 }
-
