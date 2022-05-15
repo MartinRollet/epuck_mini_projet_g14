@@ -108,7 +108,7 @@ int main(void)
 				current_state = MOVING;
     			continue;
     		case RIGHT:
-    			rotate(-MOVE_SPEED,QUARTER_ANGLE);
+    			rotate(MOVE_SPEED,QUARTER_ANGLE);
 				current_state = MOVING;
 				continue;
     		case BACK:
